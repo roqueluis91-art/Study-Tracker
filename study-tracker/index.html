@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#16325c">
+  <title>Study Tracker</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app">
+
+  <nav class="nav" id="nav" aria-label="Navegación principal">
+    <div class="brand">Study <span>Tracker</span></div>
+    <a href="#dashboard" data-view="dashboard">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+      <span>Panel</span>
+    </a>
+    <a href="#registro" data-view="registro">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>
+      <span>Registro</span>
+    </a>
+    <a href="#asignaturas" data-view="asignaturas">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/></svg>
+      <span>Asignaturas</span>
+    </a>
+    <a href="#estadisticas" data-view="estadisticas">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="6" y1="20" x2="6" y2="11"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="18" y1="20" x2="18" y2="14"/></svg>
+      <span>Estadísticas</span>
+    </a>
+    <a href="#calendario" data-view="calendario">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/></svg>
+      <span>Calendario</span>
+    </a>
+    <a href="#configuracion" data-view="configuracion">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="17" x2="20" y2="17"/><circle cx="9" cy="7" r="2.2" fill="#16325c"/><circle cx="15" cy="17" r="2.2" fill="#16325c"/></svg>
+      <span>Ajustes</span>
+    </a>
+  </nav>
+
+  <a class="timer-pill hidden" id="timer-pill" href="#registro" aria-live="off"><span class="dot-live"></span><span id="pill-time">00:00:00</span></a>
+
+  <main class="main">
+
+    <!-- ===================== PANEL ===================== -->
+    <section class="view" id="view-dashboard">
+      <header class="view-head">
+        <div>
+          <h1>Panel principal</h1>
+          <p class="sub" id="dash-date"></p>
+        </div>
+        <a class="btn primary" href="#registro">+ Registrar sesión</a>
+      </header>
+
+      <div class="notice hidden" id="dash-empty">Todavía no hay sesiones registradas. Registra la primera desde <a href="#registro"><strong>Registro</strong></a> o con el cronómetro y aquí aparecerán tus estadísticas.</div>
+
+      <div class="kpis" id="dash-kpis"></div>
+
+      <div class="card" id="dash-goals"></div>
+
+      <div class="grid-2">
+        <div class="card"><h2>Horas por día · últimos 30 días</h2><div class="chart-box"><canvas id="ch-daily"></canvas></div></div>
+        <div class="card"><h2>Distribución por asignatura · total acumulado</h2><div class="chart-box"><canvas id="ch-dist"></canvas></div></div>
+      </div>
+      <div class="grid-2">
+        <div class="card"><h2>Evolución semanal · últimas 12 semanas</h2><div class="chart-box"><canvas id="ch-weekly"></canvas></div></div>
+        <div class="card"><h2>Esta semana · estudiado vs. objetivo por asignatura</h2><div class="chart-box"><canvas id="ch-compare"></canvas></div></div>
+      </div>
+
+      <div class="card" id="dash-balance"></div>
+    </section>
+
+    <!-- ===================== REGISTRO ===================== -->
+    <section class="view hidden" id="view-registro">
+      <header class="view-head">
+        <div>
+          <h1>Registro de sesiones</h1>
+          <p class="sub">Añade una sesión manualmente o usa el cronómetro.</p>
+        </div>
+      </header>
+
+      <div class="grid-2">
+        <div class="card">
+          <h2 id="form-title">Nueva sesión</h2>
+          <form id="session-form" novalidate>
+            <div class="form-grid">
+              <div class="full">
+                <label for="f-subject">Asignatura</label>
+                <select id="f-subject" required></select>
+              </div>
+              <div>
+                <label for="f-date">Fecha</label>
+                <input type="date" id="f-date" required>
+              </div>
+              <div>
+                <label for="f-type">Tipo de actividad</label>
+                <select id="f-type"></select>
+              </div>
+              <div>
+                <label for="f-start">Hora de inicio</label>
+                <div class="with-btn"><input type="time" id="f-start" required><button type="button" class="btn sm" data-action="now" data-target="f-start" title="Poner la hora actual">Ahora</button></div>
+              </div>
+              <div>
+                <label for="f-end">Hora de finalización</label>
+                <div class="with-btn"><input type="time" id="f-end" required><button type="button" class="btn sm" data-action="now" data-target="f-end" title="Poner la hora actual">Ahora</button></div>
+              </div>
+              <div class="full">
+                <label>Duración</label>
+                <div class="duration-box" id="f-duration" aria-live="polite">—</div>
+              </div>
+              <div class="full">
+                <label for="f-notes">Observaciones (opcional)</label>
+                <textarea id="f-notes" maxlength="300" rows="2"></textarea>
+              </div>
+            </div>
+            <div class="form-error" id="f-error" role="alert"></div>
+            <div class="form-actions">
+              <button type="submit" class="btn primary" id="f-submit">Guardar sesión</button>
+              <button type="button" class="btn hidden" id="f-cancel">Cancelar edición</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="card">
+          <h2>Cronómetro</h2>
+          <div class="form-grid">
+            <div>
+              <label for="t-subject">Asignatura</label>
+              <select id="t-subject"></select>
+            </div>
+            <div>
+              <label for="t-type">Tipo de actividad</label>
+              <select id="t-type"></select>
+            </div>
+          </div>
+          <div class="timer-display" id="t-display">00:00:00</div>
+          <div class="timer-state" id="t-state">Detenido</div>
+          <div class="timer-controls">
+            <button type="button" class="btn success" id="t-start">Iniciar</button>
+            <button type="button" class="btn warn hidden" id="t-pause">Pausar</button>
+            <button type="button" class="btn primary" id="t-finish" disabled>Finalizar y guardar</button>
+            <button type="button" class="btn danger" id="t-discard" disabled>Descartar</button>
+          </div>
+          <p class="muted small" style="margin-top:14px;text-align:center">El cronómetro sigue contando aunque recargues o cierres la página.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Historial</h2>
+        <div class="filters">
+          <div><label for="h-subject">Asignatura</label><select id="h-subject"></select></div>
+          <div><label for="h-from">Desde</label><input type="date" id="h-from"></div>
+          <div><label for="h-to">Hasta</label><input type="date" id="h-to"></div>
+          <div><label for="h-type">Tipo</label><select id="h-type"></select></div>
+          <div><button type="button" class="btn" id="h-clear">Limpiar filtros</button></div>
+        </div>
+        <div class="hist-summary" id="h-summary"></div>
+        <div class="table-wrap" id="h-table"></div>
+        <div style="text-align:center;margin-top:12px"><button type="button" class="btn hidden" id="h-more" data-action="more-history">Mostrar más</button></div>
+      </div>
+    </section>
+
+    <!-- ===================== ASIGNATURAS ===================== -->
+    <section class="view hidden" id="view-asignaturas">
+      <header class="view-head">
+        <div>
+          <h1>Asignaturas y objetivos</h1>
+          <p class="sub">Los objetivos son horas <strong>planificadas</strong>; el progreso se calcula con las horas <strong>realmente estudiadas</strong>.</p>
+        </div>
+        <button type="button" class="btn primary" data-action="new-subject">+ Nueva asignatura</button>
+      </header>
+
+      <div class="card">
+        <h2>Objetivos globales</h2>
+        <div class="goals-global">
+          <div><label for="g-weekly">Objetivo semanal (h)</label><input type="number" id="g-weekly" min="0" max="168" step="0.5" inputmode="decimal"></div>
+          <div><label for="g-monthly">Objetivo mensual (h)</label><input type="number" id="g-monthly" min="0" max="744" step="1" inputmode="decimal"></div>
+        </div>
+        <div id="goals-progress"></div>
+      </div>
+
+      <div class="subject-grid" id="subject-list"></div>
+    </section>
+
+    <!-- ===================== ESTADÍSTICAS ===================== -->
+    <section class="view hidden" id="view-estadisticas">
+      <header class="view-head">
+        <div>
+          <h1>Estadísticas</h1>
+          <p class="sub" id="st-range-label"></p>
+        </div>
+        <div class="head-actions">
+          <button type="button" class="btn" id="st-csv">Exportar estadísticas (CSV)</button>
+        </div>
+      </header>
+
+      <div class="card">
+        <div class="filters" style="margin-bottom:0">
+          <div>
+            <label for="st-period">Periodo</label>
+            <select id="st-period">
+              <option value="week">Esta semana</option>
+              <option value="month">Este mes</option>
+              <option value="7d">Últimos 7 días</option>
+              <option value="30d" selected>Últimos 30 días</option>
+              <option value="90d">Últimos 90 días</option>
+              <option value="year">Este año</option>
+              <option value="all">Todo el historial</option>
+              <option value="custom">Personalizado…</option>
+            </select>
+          </div>
+          <div class="hidden" id="st-custom-from"><label for="st-from">Desde</label><input type="date" id="st-from"></div>
+          <div class="hidden" id="st-custom-to"><label for="st-to">Hasta</label><input type="date" id="st-to"></div>
+        </div>
+      </div>
+
+      <div class="kpis" id="st-kpis"></div>
+
+      <div class="grid-2">
+        <div class="card"><h2>Horas por asignatura</h2><div class="chart-box"><canvas id="ch-st-subject"></canvas></div></div>
+        <div class="card"><h2>Distribución por tipo de actividad</h2><div class="chart-box"><canvas id="ch-st-type"></canvas></div></div>
+      </div>
+      <div class="grid-2">
+        <div class="card"><h2>Horas por semana</h2><div class="chart-box"><canvas id="ch-st-week"></canvas></div></div>
+        <div class="card"><h2>Horas por mes · últimos 12 meses</h2><div class="chart-box"><canvas id="ch-st-month"></canvas></div></div>
+      </div>
+
+      <div class="card">
+        <h2>Comparación de las últimas cuatro semanas</h2>
+        <div class="chart-box tall"><canvas id="ch-st-4w"></canvas></div>
+        <div class="table-wrap" id="st-4w-table" style="margin-top:16px"></div>
+      </div>
+
+      <div class="card">
+        <h2>Horas acumuladas por asignatura</h2>
+        <div class="table-wrap" id="st-table"></div>
+      </div>
+    </section>
+
+    <!-- ===================== CALENDARIO ===================== -->
+    <section class="view hidden" id="view-calendario">
+      <header class="view-head">
+        <div>
+          <h1>Calendario</h1>
+          <p class="sub">Mapa de calor de tu estudio. Pulsa un día para ver sus sesiones.</p>
+        </div>
+      </header>
+      <div class="card">
+        <div class="cal-head">
+          <div class="cal-nav">
+            <button type="button" class="btn sm" data-action="cal-prev" aria-label="Mes anterior">‹</button>
+            <div class="cal-title" id="cal-title"></div>
+            <button type="button" class="btn sm" data-action="cal-next" aria-label="Mes siguiente">›</button>
+          </div>
+          <button type="button" class="btn sm" data-action="cal-today">Hoy</button>
+        </div>
+        <div class="cal-weekdays"><div>Lun</div><div>Mar</div><div>Mié</div><div>Jue</div><div>Vie</div><div>Sáb</div><div>Dom</div></div>
+        <div class="cal-grid" id="cal-grid"></div>
+        <div class="legend"><span>Menos</span><i class="l0"></i><i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l4"></i><span>Más</span></div>
+        <p class="muted small" id="cal-summary" style="margin-top:10px"></p>
+      </div>
+      <div class="card" id="cal-day"></div>
+    </section>
+
+    <!-- ===================== AJUSTES ===================== -->
+    <section class="view hidden" id="view-configuracion">
+      <header class="view-head">
+        <div>
+          <h1>Configuración y datos</h1>
+          <p class="sub">Todo se guarda automáticamente en este navegador. No hay cuentas ni servidores.</p>
+        </div>
+      </header>
+      <div class="card">
+        <h2>Copia de seguridad</h2>
+        <div class="setting-row">
+          <div><strong>Exportar todos los datos (JSON)</strong><p>Asignaturas, sesiones y objetivos. Haz copias de vez en cuando: el almacenamiento del navegador puede borrarse si limpias los datos del sitio.</p><p id="s-last-export"></p></div>
+          <button type="button" class="btn primary" id="s-export">Exportar JSON</button>
+        </div>
+        <div class="setting-row">
+          <div><strong>Importar copia de seguridad</strong><p>Reemplaza los datos actuales por los del archivo JSON seleccionado.</p></div>
+          <div><button type="button" class="btn" id="s-import-btn">Importar JSON…</button><input type="file" id="s-import" accept=".json,application/json" class="hidden"></div>
+        </div>
+        <div class="setting-row">
+          <div><strong>Exportar a CSV</strong><p>Abre bien en Excel. Separador «;» y codificación UTF-8.</p></div>
+          <div class="btn-row"><button type="button" class="btn" id="s-csv-sessions">Sesiones (CSV)</button><button type="button" class="btn" id="s-csv-stats">Resumen por asignatura (CSV)</button></div>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Almacenamiento</h2>
+        <p id="s-info" class="muted"></p>
+      </div>
+      <div class="card">
+        <h2>Zona de peligro</h2>
+        <div class="setting-row">
+          <div><strong>Reiniciar todos los datos</strong><p>Borra sesiones, objetivos y cronómetro, y restaura las asignaturas iniciales. Pide confirmación y no se puede deshacer: exporta antes una copia.</p></div>
+          <button type="button" class="btn danger" id="s-reset">Reiniciar datos…</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<div class="modal-backdrop hidden" id="modal" role="dialog" aria-modal="true">
+  <div class="modal" id="modal-body"></div>
+</div>
+<div class="toast hidden" id="toast" role="status" aria-live="polite"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
